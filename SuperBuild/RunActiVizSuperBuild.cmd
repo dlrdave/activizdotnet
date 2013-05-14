@@ -14,7 +14,23 @@
 @echo off
 setlocal
 
-set build_dir=build
+rem   Grandparent directory of this SuperBuild dir is the default root_dir,
+rem   but you can override that by setting AVSB_ROOT_DIR in the environment
+rem   prior to invoking this script:
+
+if "%AVSB_ROOT_DIR%" equ "" (
+  for /f "usebackq delims=" %%d in (`echo %~dp0..\..`) do set root_dir=%%~fd
+) else (
+  set root_dir=%AVSB_ROOT_DIR%
+)
+
+if not exist "%root_dir%" (
+  echo.
+  echo.  WARNING: "%root_dir%" does not exist
+  echo.
+)
+
+set build_dir=bld\avsb
 set cmake_bin_dir=C:\Program Files (x86)\CMake 2.8\bin
 set cmake_exe=%cmake_bin_dir%\cmake.exe
 set ctest_exe=%cmake_bin_dir%\ctest.exe
@@ -22,9 +38,26 @@ set generator=Visual Studio 9 2008
 set git_bin_dir=C:\Program Files (x86)\Git\bin
 set git_exe=%git_bin_dir%\git.exe
 set key_file=%AVSB_SNKEYFILE%
-set root_dir=C:\K\av
 set source_dir=activizdotnet
 set tail_exe=%git_bin_dir%\tail.exe
+
+if not exist "%cmake_exe%" (
+  echo.
+  echo.  WARNING: cmake not found at "%cmake_exe%"
+  echo.
+)
+
+if not exist "%git_exe%" (
+  echo.
+  echo.  WARNING: git not found at "%git_exe%"
+  echo.
+)
+
+if not exist "%root_dir%\%source_dir%" (
+  echo.
+  echo.  WARNING: source directory not found at "%root_dir%\%source_dir%"
+  echo.
+)
 
 echo.
 echo Starting build in "%build_dir%"... - %DATE% %TIME%
